@@ -1,9 +1,17 @@
 import React, { useState } from 'react'
 import './FunctionalSearch.css'
-
+import { nanoid } from 'nanoid'
 const FunctionalSearch = () => {
+  const [mrnValue, setMrnValue] = useState('')
+  const [firstNameValue, setFirstNameValue] = useState('')
+  const [lastNameValue, setLastNameValue] = useState('')
+  const [dobValue, setdobValue] = useState('')
   const [searchValue, setSearchValue] = useState('')
+
   const [meals, setMeals] = useState([])
+
+  const [members, setMembers] = useState([])
+  const [resmembers, setResMembers] = useState([])
   const [flag, setFlag] = useState(0)
 
   //   state = {
@@ -36,19 +44,91 @@ const FunctionalSearch = () => {
     //this.makeApiCall(this.state.searchValue)
   }
 
+  const handleAddFormChange = (event) => {
+    event.preventDefault()
+    const fieldName = event.target.getAttribute('name')
+    const fieldValue = event.target.value
+    const newFormData = { ...members }
+    newFormData[fieldName] = fieldValue
+    console.log('newForm field NAme', newFormData[fieldName])
+
+    console.log('newForm alone', newFormData)
+    setMembers(newFormData)
+  }
+
+  const handleAddFormSubmit = (event) => {
+    setFlag(1)
+    event.preventDefault()
+    console.log('In handleForm Submit', members)
+    console.log('In handleForm Submit ID', members.mrn)
+    console.log('In handleForm Submit firstname', members.firstName)
+
+    const newSearch = {
+      id: nanoid(),
+      mrn: members.mrn,
+      firstName: members.firstName,
+      lastName: members.lastName,
+      dob: members.dob,
+    }
+
+    var searchUrl = `https://www.themealdb.com/api/json/v1/1/search.php?s=${
+      newSearch.firstName
+    }`
+    fetch(searchUrl)
+      .then((response) => {
+        return response.json()
+      })
+      .then((jsonData) => {
+        setResMembers(jsonData.meals)
+        //this.setState({ meals: jsonData.meals })
+      })
+  }
+
   return (
     <div id="main">
-      <h1>Welcome to the meal search app</h1>
+      {/* <h1>Welcome to the meal search app</h1>
       <input
         name="text"
         type="text"
         placeholder="Search"
         onChange={(event) => handleOnChange(event)}
         value={searchValue}
-      />
+      /> */}
 
-      <button onClick={handleSearch}>Search</button>
-      {flag && meals ? (
+      <form onSubmit={handleAddFormSubmit}>
+        <input
+          type="text"
+          name="mrn"
+          required="required"
+          placeholder="mrn"
+          onChange={handleAddFormChange}
+        />
+        <input
+          type="text"
+          name="firstName"
+          required="required"
+          placeholder="FirstName"
+          onChange={handleAddFormChange}
+        />
+        <input
+          type="text"
+          name="lastName"
+          required="required"
+          placeholder="LastName"
+          onChange={handleAddFormChange}
+        />
+        <input
+          type="date"
+          name="dob"
+          required="required"
+          placeholder="dob"
+          onChange={handleAddFormChange}
+        />
+        <button type="submit">Search Members</button>
+      </form>
+
+      {/* <button onClick={handleSearch}>Search</button> */}
+      {flag && resmembers ? (
         <>
           <table>
             <tr>
@@ -60,7 +140,7 @@ const FunctionalSearch = () => {
               <th> sex</th>
               <th>address</th>
             </tr>
-            {meals.map((meal, index) => {
+            {/* {meals.map((meal, index) => {
               return (
                 <tr key={index}>
                   <td>{meal.idMeal}</td>
@@ -70,6 +150,20 @@ const FunctionalSearch = () => {
                   <td>{meal.strCategory}</td>
                   <td>{meal.strArea}</td>
                   <td>{meal.strInstructions.slice(0, 10)}</td>
+                </tr>
+              )
+            })} */}
+
+            {resmembers.map((member, index) => {
+              return (
+                <tr key={index}>
+                  <td>akhila</td>
+                  <td>kolla</td>
+                  <td>{member.idMeal}</td>
+                  <td>{member.strMeal}</td>
+                  <td>{member.strDrinkAlternate}</td>
+                  <td>{member.strCategory}</td>
+                  <td>That's all</td>
                 </tr>
               )
             })}
